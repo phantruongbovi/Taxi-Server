@@ -51,7 +51,7 @@ public class TaxiServer {
     public static void main(String[] args) throws IOException, InterruptedException {
         System.out.println("Hello, This is Taxi Server!");
 
-        Server server = ServerBuilder.forPort(50051)
+        Server server = ServerBuilder.forPort(50001)
                 .addService(new DriverLocationServiceImpl())
                 .addService(new CarServiceImpl())
                 .addService(new TestServer())

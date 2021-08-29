@@ -6,7 +6,7 @@ metadata:
     app: taxi
     type: demo
 spec:
-  replicas: 3
+  replicas: 10
   selector:
     matchLabels:
       app: taxi
@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
       - name: grpc-service
-        image: phantruongdp/myservice:v5
+        image: phantruongdp/myservice:v6
         imagePullPolicy: Always
         ports:
         - containerPort: 50001

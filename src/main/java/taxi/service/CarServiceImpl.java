@@ -26,18 +26,19 @@ public class CarServiceImpl extends CarServiceGrpc.CarServiceImplBase {
         3: extra car
         */
         if (typeCar==1){
-            getCar("20.197.109.42", request, responseObserver, podName, typeCar);
+            getCar("20.184.57.114", request, responseObserver, podName, typeCar);
         }
         else if(typeCar==2){
-            getCar("20.197.107.94", request, responseObserver, podName, typeCar);
+            getCar("20.184.59.153", request, responseObserver, podName, typeCar);
         }
         else  if(typeCar==3){
-            getCar("20.198.187.152", request, responseObserver, podName, typeCar);
+            getCar("20.184.59.186", request, responseObserver, podName, typeCar);
         }
 
     }
 
     private void getCar(String host, getNearlyCarRequest request, StreamObserver<getNearlyCarResponse> responseObserver, String podName, int typeCar){
+        System.out.println("yes");
         try(Jedis jedis = new Jedis(host, 6379)) {
             getNearlyCarRequest value = request;
             double longitude = value.getLongitude();

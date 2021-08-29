@@ -13,7 +13,10 @@ import java.util.Scanner;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class Client {
+public class Client{
+    private double totalTime = 0;
+    private int loss = 0;
+    private int claimed = 0;
     public static void main(String[] args) throws FileNotFoundException {
         Client main = new Client();
         main.run();
@@ -24,18 +27,30 @@ public class Client {
 
         //ping(channel1);
         //updateLocation(channel1);
-        for(int i =0; i< 100 ;i++) {
-            ManagedChannel channel1 = ManagedChannelBuilder.forAddress("20.198.149.232", 50001)
-                    .usePlaintext()
-                    .build();
+        int request = 10000;
+        for(int i =0; i< request ;i++) {
+            try{
+                ManagedChannel channel1 = ManagedChannelBuilder.forAddress("20.197.80.20", 50001)
+                        .usePlaintext()
+                        .build();
 
-            getNearlyCar1(channel1, i+1);
-
+                getNearlyCar1(channel1, i+1);
+                claimed+=1;
+            }
+            catch (Exception e){
+                loss += 1;
+            }
+            //ping(channel1);
         }
+
+
+        System.out.println("-----------------------");
+        System.out.println("Total Time: " + totalTime/request + " Millis");
+        System.out.println("Loss: " + loss);
+        System.out.println("Claimed: " + claimed);
             //getNearlyCar(channel1);
 
        // }
-
     }
 
     private void ping(ManagedChannel channel) {
@@ -64,20 +79,20 @@ public class Client {
                 .setTypeCar(typeCar+1)
                 .build();
         double timeStart = System.currentTimeMillis();
+
+
         getNearlyCarResponse value = stub.getNearlyCar1(request);
         double timeSEnd = System.currentTimeMillis();
+        totalTime = totalTime + timeSEnd -timeStart;
         System.out.println("-----------------------");
         System.out.println("ID request: " + value.getIdRequest());
-        System.out.println("Server Response: " + value.getNameServer());
+        /*System.out.println("Server Response: " + value.getNameServer());
         for(int i = 0 ; i < value.getDriverCount() ; i++){
             System.out.println("Driver: " + value.getDriver(i).getIdCard());
             System.out.println("    Longitude: " + value.getDriver(i).getLongitude());
             System.out.println("    Latitude: " + value.getDriver(i).getLatitude());
         }
-        System.out.println("Time claim response: " + (timeSEnd - timeStart) + " miliS");
-
-
-
+        System.out.println("Time claim response: " + (timeSEnd - timeStart) + " miliS");*/
     }
 
     private void updateLocation(ManagedChannel channel) throws FileNotFoundException {
@@ -147,3 +162,4 @@ public class Client {
         }
     }
 }
+
