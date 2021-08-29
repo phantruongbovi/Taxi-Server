@@ -1,0 +1,4 @@
+!/bin/bash
+cat LocationType1.txt | redis-cli -h 20.197.109.42 -p 6379 --pipe
+cat LocationType2.txt | redis-cli -h 20.197.107.94 -p 6379 --pipe
+cat LocationType3.txt | redis-cli -h 20.198.187.152 -p 6379 --pipe

@@ -1,0 +1,60 @@
+syntax = 'proto3';
+package taxi;
+option java_package = "com.proto.taxi";
+option java_multiple_files = true;
+
+message Driver{
+  string idCard = 1;
+  double longitude = 2;
+  double latitude = 3;
+}
+
+/*
+  1. Driver Location service
+*/
+//Update Current Location
+message UpdateLocationRequest{
+  string idCard = 1;
+  double longitude = 2;
+  double latitude = 3;
+  int32 typeCar = 4;
+}
+message UpdateLocationResponse{
+  int32 result = 1;
+}
+
+// 2. Car Service
+
+// Get nearly car
+message getNearlyCarRequest{
+  int32 idRequest = 1;
+  double longitude = 2;
+  double latitude = 3;
+  int32 typeCar = 4;
+}
+
+message getNearlyCarResponse{
+  string  idRequest = 1;
+  repeated Driver driver = 2;
+  double time = 3;
+  string nameServer = 4;
+}
+
+// Service Test Server
+message HelloRequest{}
+message HelloResponse{
+  string pong = 1;
+}
+
+service TestServer{
+  rpc Hello(HelloRequest) returns (HelloResponse) {};
+}
+
+// Service
+service CarService{
+  rpc getNearlyCar1(getNearlyCarRequest) returns (getNearlyCarResponse) {};
+}
+
+service DriverLocationService{
+  rpc UpdateLocation(stream UpdateLocationRequest) returns (UpdateLocationResponse) {};
+}
