@@ -1,6 +1,7 @@
 # Taxi-Server
 ## Tổng quan về hệ thống
 ![alt text](https://github.com/phantruongbovi/Taxi-Server/blob/main/Diagram.png)
+- Để test mình đang lưu trên redis 100k xe, chia đều cho 3 loại xe (1, 2, 3).
 ## Setup
 1. Clone repo về máy
 ```
@@ -16,7 +17,7 @@ git clone https://github.com/phantruongbovi/Taxi-Server.git
 2. Địa chỉ ip và port:
 - taxi-server: 20.43.157.85:50001
 - osrm-server: 20.197.105.250:5000
-4. Cấu hình VM: 
+3. Cấu hình VM: 
 - vCPUs: 2
 - RAM: 4 GiB
 - Data disks: 4
