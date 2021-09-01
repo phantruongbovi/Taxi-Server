@@ -6,13 +6,21 @@ import com.proto.taxi.getNearlyCarRequest;
 import com.proto.taxi.getNearlyCarResponse;
 import io.grpc.internal.JsonUtil;
 import io.grpc.stub.StreamObserver;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import redis.clients.jedis.GeoRadiusResponse;
 import redis.clients.jedis.GeoUnit;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.params.geo.GeoRadiusParam;
 
+import java.io.*;
+import java.net.HttpURLConnection;
 import java.net.InetAddress;
+import java.net.URL;
 import java.net.UnknownHostException;
+import java.nio.charset.Charset;
+import java.util.Arrays;
 import java.util.List;
 
 public class CarServiceImpl extends CarServiceGrpc.CarServiceImplBase {
@@ -38,7 +46,6 @@ public class CarServiceImpl extends CarServiceGrpc.CarServiceImplBase {
     }
 
     private void getCar(String host, getNearlyCarRequest request, StreamObserver<getNearlyCarResponse> responseObserver, String podName, int typeCar){
-        System.out.println("yes");
         try(Jedis jedis = new Jedis(host, 6379)) {
             getNearlyCarRequest value = request;
             double longitude = value.getLongitude();
@@ -47,20 +54,45 @@ public class CarServiceImpl extends CarServiceGrpc.CarServiceImplBase {
             double timeStart = System.nanoTime();
             List<GeoRadiusResponse> responses;
             responses = jedis.georadius("LocationDriver", longitude, latitude, 500, GeoUnit.KM, GeoRadiusParam.geoRadiusParam().sortAscending().count(5).withCoord());
+            if(responses.isEmpty()){
+                responses = jedis.georadius("backup1", longitude, latitude, 500, GeoUnit.KM, GeoRadiusParam.geoRadiusParam().sortAscending().count(5).withCoord());
+            }
             getNearlyCarResponse.Builder listDirver = getNearlyCarResponse.newBuilder();
-            Driver driver;
+            String des = longitude+ "," + latitude;
+            String table = "";
+            int count = 0 ;
             for (GeoRadiusResponse respons : responses) {
-                driver = Driver.newBuilder()
-                        .setIdCard(respons.getMemberByString())
-                        .setLongitude(respons.getCoordinate().getLongitude())
-                        .setLatitude(respons.getCoordinate().getLatitude())
-                        .build();
-                listDirver.addDriver(driver);
+                if(count != 4){
+                    table += respons.getCoordinate().getLongitude() + "," + respons.getCoordinate().getLatitude() + ";";
+                }
+                else{
+                    table += respons.getCoordinate().getLongitude() + "," + respons.getCoordinate().getLatitude();
+                }
+                count += 1;
+            }
+            String rq = "http://20.197.105.250:5000/table/v1/driving/" + des + ";" + table + "?sources=0&destinations=1;2;3;4;5";
+            JSONObject json = readJsonFromUrl(rq);
+            double minDistance = Double.MAX_VALUE;
+            JSONArray arr = json.getJSONArray("destinations");
+            int index = 0;
+            for(int i = 0; i < arr.length(); i++){
+                if(minDistance > arr.getJSONObject(i).getDouble("distance")){
+                    index = i;
+                    minDistance = arr.getJSONObject(i).getDouble("distance");
+                }
             }
             double timeEnd = System.nanoTime();
-            getNearlyCarResponse response = listDirver.setIdRequest(idRequest + "(" + typeCar + ")").setTime(timeEnd - timeStart).setNameServer(podName).build();
+            GeoRadiusResponse respons = responses.get(index);
+            Driver driver = Driver.newBuilder()
+                    .setIdCard(respons.getMemberByString())
+                    .setLongitude(respons.getCoordinate().getLongitude())
+                    .setLatitude(respons.getCoordinate().getLatitude())
+                    .build();
+            getNearlyCarResponse response = listDirver.setDriver(driver).setDistance(minDistance).setTypecar(typeCar).setIdRequest(Integer.toString(idRequest)).setTime(timeEnd - timeStart).setNameServer(podName).build();
             responseObserver.onNext(response);
             responseObserver.onCompleted();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
     private String getHostName(){
@@ -70,5 +102,25 @@ public class CarServiceImpl extends CarServiceGrpc.CarServiceImplBase {
             e.printStackTrace();
         }
         return null;
+    }
+    private static String readAll(Reader rd) throws IOException {
+        StringBuilder sb = new StringBuilder();
+        int cp;
+        while ((cp = rd.read()) != -1) {
+            sb.append((char) cp);
+        }
+        return sb.toString();
+    }
+
+    public static JSONObject readJsonFromUrl(String url) throws IOException, JSONException {
+        InputStream is = new URL(url).openStream();
+        try {
+            BufferedReader rd = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")));
+            String jsonText = readAll(rd);
+            JSONObject json = new JSONObject(jsonText);
+            return json;
+        } finally {
+            is.close();
+        }
     }
 }

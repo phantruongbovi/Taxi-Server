@@ -41,6 +41,7 @@ dependencies {
     implementation group: 'org.bouncycastle', name: 'bcmail-jdk14', version: '1.69'
     testImplementation group: 'io.grpc', name: 'grpc-testing', version: '1.39.0'
     testImplementation group: 'org.mockito', name: 'mockito-core', version: '3.11.2'
+    implementation group: 'org.json', name: 'json', version: '20210307'
 }
 
 // #3

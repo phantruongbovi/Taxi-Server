@@ -24,24 +24,44 @@ public class Client{
 
     private void run() throws FileNotFoundException {
         //for(int i =0; i < 10; i++){
-
+        int request = 100;
         //ping(channel1);
         //updateLocation(channel1);
-        int request = 10000;
-        for(int i =0; i< request ;i++) {
+        int threads = 3;
+        ExecutorService executorService = Executors.newFixedThreadPool(threads);
+        for(int i = 0; i < request; i++){
+            int finalI = i;
+            executorService.submit(()->{
+                try{
+                    ManagedChannel channel1 = ManagedChannelBuilder.forAddress("20.43.157.85", 50001)
+                            .usePlaintext()
+                            .build();
+                    //ping(channel1);
+                    getNearlyCar1(channel1, finalI+1);
+                    claimed+=1;
+                }
+                catch (Exception e){
+                    loss += 1;
+                }
+            });
+        }
+        executorService.shutdown();
+        while(!executorService.isTerminated()){}
+        /*for(int i =0; i< request ;i++) {
             try{
-                ManagedChannel channel1 = ManagedChannelBuilder.forAddress("20.197.80.20", 50001)
+                ManagedChannel channel1 = ManagedChannelBuilder.forAddress("20.44.231.197", 50001)
                         .usePlaintext()
                         .build();
-
+                //ping(channel1);
                 getNearlyCar1(channel1, i+1);
                 claimed+=1;
             }
             catch (Exception e){
                 loss += 1;
+
             }
-            //ping(channel1);
-        }
+
+        }*/
 
 
         System.out.println("-----------------------");
@@ -79,20 +99,16 @@ public class Client{
                 .setTypeCar(typeCar+1)
                 .build();
         double timeStart = System.currentTimeMillis();
-
-
         getNearlyCarResponse value = stub.getNearlyCar1(request);
         double timeSEnd = System.currentTimeMillis();
         totalTime = totalTime + timeSEnd -timeStart;
         System.out.println("-----------------------");
         System.out.println("ID request: " + value.getIdRequest());
-        /*System.out.println("Server Response: " + value.getNameServer());
-        for(int i = 0 ; i < value.getDriverCount() ; i++){
-            System.out.println("Driver: " + value.getDriver(i).getIdCard());
-            System.out.println("    Longitude: " + value.getDriver(i).getLongitude());
-            System.out.println("    Latitude: " + value.getDriver(i).getLatitude());
-        }
-        System.out.println("Time claim response: " + (timeSEnd - timeStart) + " miliS");*/
+        System.out.println("Driver: " + value.getDriver().getIdCard());
+        System.out.println("Distance: " + value.getDistance());
+        System.out.println("Type Car: " + value.getTypecar());
+        System.out.println("Server Request: " + value.getNameServer());
+        System.out.println("Time: " + (timeSEnd -timeStart) + " ms");
     }
 
     private void updateLocation(ManagedChannel channel) throws FileNotFoundException {

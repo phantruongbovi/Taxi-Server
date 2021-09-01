@@ -35,9 +35,11 @@ message getNearlyCarRequest{
 
 message getNearlyCarResponse{
   string  idRequest = 1;
-  repeated Driver driver = 2;
+  Driver driver = 2;
   double time = 3;
   string nameServer = 4;
+  double distance = 5;
+  int32 typecar =6;
 }
 
 // Service Test Server
