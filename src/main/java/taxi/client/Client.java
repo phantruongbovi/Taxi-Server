@@ -23,11 +23,8 @@ public class Client{
     }
 
     private void run() throws FileNotFoundException {
-        //for(int i =0; i < 10; i++){
-        int request = 100;
-        //ping(channel1);
-        //updateLocation(channel1);
-        int threads = 3;
+        int request = 100; // Tổng số request
+        int threads = 3; // Số thread gửi request
         ExecutorService executorService = Executors.newFixedThreadPool(threads);
         for(int i = 0; i < request; i++){
             int finalI = i;
@@ -36,7 +33,6 @@ public class Client{
                     ManagedChannel channel1 = ManagedChannelBuilder.forAddress("20.43.157.85", 50001)
                             .usePlaintext()
                             .build();
-                    //ping(channel1);
                     getNearlyCar1(channel1, finalI+1);
                     claimed+=1;
                 }
@@ -47,41 +43,18 @@ public class Client{
         }
         executorService.shutdown();
         while(!executorService.isTerminated()){}
-        /*for(int i =0; i< request ;i++) {
-            try{
-                ManagedChannel channel1 = ManagedChannelBuilder.forAddress("20.44.231.197", 50001)
-                        .usePlaintext()
-                        .build();
-                //ping(channel1);
-                getNearlyCar1(channel1, i+1);
-                claimed+=1;
-            }
-            catch (Exception e){
-                loss += 1;
-
-            }
-
-        }*/
-
 
         System.out.println("-----------------------");
         System.out.println("Total Time: " + totalTime/request + " Millis");
         System.out.println("Loss: " + loss);
         System.out.println("Claimed: " + claimed);
-            //getNearlyCar(channel1);
-
-       // }
     }
 
     private void ping(ManagedChannel channel) {
         int n = 0;
-      // while(n < 500){
         TestServerGrpc.TestServerBlockingStub stub = TestServerGrpc.newBlockingStub(channel);
         HelloResponse response = stub.hello(HelloRequest.newBuilder().build());
         System.out.println(response.getPong());
-        //    n+=1;
-        //}
-
     }
 
     // unary
