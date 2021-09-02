@@ -1,7 +1,7 @@
 # Taxi-Server
 ## Tổng quan về hệ thống
 ![alt text](https://github.com/phantruongbovi/Taxi-Server/blob/main/Diagram.png)
-- Để test mình đang lưu trên redis 100k xe, chia đều cho 3 loại xe (1, 2, 3).
+- Để test mình đang lưu trên redis 1m xe, chia đều cho 3 loại xe (1, 2, 3).
 ## Setup
 1. Clone repo về máy
 ```
