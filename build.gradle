@@ -36,7 +36,7 @@ dependencies {
     compileOnly 'org.apache.tomcat:annotations-api:6.0.53'
 
     implementation group: 'com.google.api.grpc', name: 'proto-google-common-protos', version: '2.3.2'
-    implementation group: 'redis.clients', name: 'jedis', version: '2.8.0'
+    implementation group: 'redis.clients', name: 'jedis', version: '3.3.0'
     implementation group: 'io.netty', name: 'netty-tcnative-boringssl-static', version: '2.0.40.Final'
     implementation group: 'org.bouncycastle', name: 'bcmail-jdk14', version: '1.69'
     testImplementation group: 'io.grpc', name: 'grpc-testing', version: '1.39.0'

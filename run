@@ -1,6 +1,6 @@
 #!/bin/bash
 docker build -t grpc -f Dockerfile .
-docker tag grpc phantruongdp/myservice:v8
-docker push phantruongdp/myservice:v8
-cd Kube
+docker tag grpc phantruongdp/myservice:v9
+docker push phantruongdp/myservice:v9
+cd Kube/grpc-server
 kubectl apply -f deployment.yaml

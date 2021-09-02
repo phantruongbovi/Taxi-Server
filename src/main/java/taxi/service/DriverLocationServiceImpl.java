@@ -5,7 +5,6 @@ import io.grpc.stub.StreamObserver;
 import redis.clients.jedis.GeoRadiusResponse;
 import redis.clients.jedis.GeoUnit;
 import redis.clients.jedis.Jedis;
-import redis.clients.jedis.params.geo.GeoRadiusParam;
 
 import java.util.List;
 import java.util.stream.Stream;

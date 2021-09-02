@@ -12,7 +12,7 @@ import org.json.JSONObject;
 import redis.clients.jedis.GeoRadiusResponse;
 import redis.clients.jedis.GeoUnit;
 import redis.clients.jedis.Jedis;
-import redis.clients.jedis.params.geo.GeoRadiusParam;
+import redis.clients.jedis.params.GeoRadiusParam;
 
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -34,13 +34,13 @@ public class CarServiceImpl extends CarServiceGrpc.CarServiceImplBase {
         3: extra car
         */
         if (typeCar==1){
-            getCar("20.184.57.114", request, responseObserver, podName, typeCar);
+            getCar("20.195.102.201", request, responseObserver, podName, typeCar);
         }
         else if(typeCar==2){
-            getCar("20.184.59.153", request, responseObserver, podName, typeCar);
+            getCar("20.195.103.104", request, responseObserver, podName, typeCar);
         }
         else  if(typeCar==3){
-            getCar("20.184.59.186", request, responseObserver, podName, typeCar);
+            getCar("20.195.98.29", request, responseObserver, podName, typeCar);
         }
 
     }
@@ -53,9 +53,9 @@ public class CarServiceImpl extends CarServiceGrpc.CarServiceImplBase {
             int idRequest = value.getIdRequest();
             double timeStart = System.nanoTime();
             List<GeoRadiusResponse> responses;
-            responses = jedis.georadius("LocationDriver", longitude, latitude, 500, GeoUnit.KM, GeoRadiusParam.geoRadiusParam().sortAscending().count(5).withCoord());
+            responses = jedis.georadiusReadonly("LocationDriver", longitude, latitude, 200, GeoUnit.KM, GeoRadiusParam.geoRadiusParam().sortAscending().count(5).withCoord());
             if(responses.isEmpty()){
-                responses = jedis.georadius("backup1", longitude, latitude, 500, GeoUnit.KM, GeoRadiusParam.geoRadiusParam().sortAscending().count(5).withCoord());
+                responses = jedis.georadiusReadonly("backup1", longitude, latitude, 200, GeoUnit.KM, GeoRadiusParam.geoRadiusParam().sortAscending().count(5).withCoord());
             }
             getNearlyCarResponse.Builder listDirver = getNearlyCarResponse.newBuilder();
             String des = longitude+ "," + latitude;

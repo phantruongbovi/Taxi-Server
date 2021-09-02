@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
       - name: grpc-service
-        image: phantruongdp/myservice:v8
+        image: phantruongdp/myservice:v9
         imagePullPolicy: Always
         ports:
         - containerPort: 50001
