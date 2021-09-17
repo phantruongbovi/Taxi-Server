@@ -26,13 +26,13 @@ public class DriverLocationServiceImpl extends DriverLocationServiceGrpc.DriverL
                 3: extra car
                 */
                 if (typeCar==1){
-                    updateCar("20.197.106.181", idCar, longi, lati);
+                    updateCar("type1", idCar, longi, lati);
                 }
                 else if(typeCar==2){
-                    updateCar("20.197.107.94", idCar, longi, lati);
+                    updateCar("type2", idCar, longi, lati);
                 }
                 else  if(typeCar==3){
-                    updateCar("20.197.108.61", idCar, longi, lati);
+                    updateCar("type3", idCar, longi, lati);
                 }
                 count +=1;
                 System.out.println(count);
@@ -52,9 +52,9 @@ public class DriverLocationServiceImpl extends DriverLocationServiceGrpc.DriverL
         };
         return requestStreamObserver;
     }
-    private void updateCar(String server, String idCard, double longi, double lati){
-        try(Jedis jedis = new Jedis(server, 6379)) {
-            jedis.geoadd("LocationDriver", longi, lati, idCard);
+    private void updateCar(String typeC, String idCard, double longi, double lati){
+        try(Jedis jedis = new Jedis("20.195.100.123", 6379)) {
+            jedis.geoadd(typeC, longi, lati, idCard);
         }
     }
 }

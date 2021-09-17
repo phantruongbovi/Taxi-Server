@@ -9,9 +9,7 @@ message Driver{
   double latitude = 3;
 }
 
-/*
-  1. Driver Location service
-*/
+// 1. Driver Location service
 //Update Current Location
 message UpdateLocationRequest{
   string idCard = 1;
@@ -24,7 +22,6 @@ message UpdateLocationResponse{
 }
 
 // 2. Car Service
-
 // Get nearly car
 message getNearlyCarRequest{
   int32 idRequest = 1;
@@ -40,16 +37,6 @@ message getNearlyCarResponse{
   string nameServer = 4;
   double distance = 5;
   int32 typecar =6;
-}
-
-// Service Test Server
-message HelloRequest{}
-message HelloResponse{
-  string pong = 1;
-}
-
-service TestServer{
-  rpc Hello(HelloRequest) returns (HelloResponse) {};
 }
 
 // Service

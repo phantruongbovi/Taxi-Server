@@ -17,37 +17,55 @@ public class Client{
     private double totalTime = 0;
     private int loss = 0;
     private int claimed = 0;
+    private int totalDriver = 1000;
+    private int typeCar = 3;
     public static void main(String[] args) throws FileNotFoundException {
         Client main = new Client();
         main.run();
     }
 
     private void run() throws FileNotFoundException {
-        int request = 100; // Tổng số request
-        int threads = 3; // Số thread gửi request
-        ExecutorService executorService = Executors.newFixedThreadPool(threads);
-        for(int i = 0; i < request; i++){
-            int finalI = i;
-            executorService.submit(()->{
-                try{
-                    ManagedChannel channel1 = ManagedChannelBuilder.forAddress("20.43.157.85", 50001)
-                            .usePlaintext()
-                            .build();
-                    getNearlyCar1(channel1, finalI+1);
-                    claimed+=1;
-                }
-                catch (Exception e){
-                    loss += 1;
-                }
-            });
-        }
-        executorService.shutdown();
-        while(!executorService.isTerminated()){}
+        Scanner obj = new Scanner(System.in);
+        System.out.println("1. Request Driver");
+        System.out.println("2. Update Location");
+        System.out.println("Lựa chọn: ");
+        int choose = obj.nextInt();
+        if(choose == 1) {
+            int request = 1000; // Tổng số request
+            int threads = 3; // Số thread gửi request
+            ExecutorService executorService = Executors.newFixedThreadPool(threads);
+            for (int i = 0; i < request; i++) {
+                int finalI = i;
+                executorService.submit(() -> {
+                    try {
+                        ManagedChannel channel1 = ManagedChannelBuilder.forAddress("localhost", 50001)
+                                .usePlaintext()
+                                .build();
+                        getNearlyCar1(channel1, finalI + 1);
+                        claimed += 1;
+                    } catch (Exception e) {
+                        loss += 1;
+                    }
+                });
+            }
+            executorService.shutdown();
+            while (!executorService.isTerminated()) {
+            }
 
-        System.out.println("-----------------------");
-        System.out.println("Total Time: " + totalTime/request + " Millis");
-        System.out.println("Loss: " + loss);
-        System.out.println("Claimed: " + claimed);
+            System.out.println("-----------------------");
+            System.out.println("Total Time: " + totalTime / request + " Millis");
+            System.out.println("Loss: " + loss);
+            System.out.println("Claimed: " + claimed);
+        }
+        else if(choose==2){
+            double timeStart = System.currentTimeMillis();
+            ManagedChannel channel1 = ManagedChannelBuilder.forAddress("localhost", 50001)
+                    .usePlaintext()
+                    .build();
+            updateLocation(channel1);
+            double timeEnd = System.currentTimeMillis();
+            System.out.println("Total Time: " + (timeEnd-timeStart));
+        }
     }
 
     private void ping(ManagedChannel channel) {
@@ -75,13 +93,22 @@ public class Client{
         getNearlyCarResponse value = stub.getNearlyCar1(request);
         double timeSEnd = System.currentTimeMillis();
         totalTime = totalTime + timeSEnd -timeStart;
-        System.out.println("-----------------------");
-        System.out.println("ID request: " + value.getIdRequest());
-        System.out.println("Driver: " + value.getDriver().getIdCard());
-        System.out.println("Distance: " + value.getDistance());
-        System.out.println("Type Car: " + value.getTypecar());
-        System.out.println("Server Request: " + value.getNameServer());
-        System.out.println("Time: " + (timeSEnd -timeStart) + " ms");
+        if(value.getTime() == 0){
+            System.out.println("-----------------------");
+            System.out.println("Không có tài xế xung quanh!!");
+            System.out.println("ID request: " + value.getIdRequest());
+            System.out.println("Server Request: " + value.getNameServer());
+            System.out.println("Time: " + (timeSEnd -timeStart) + " ms");
+        }
+        else{
+            System.out.println("-----------------------");
+            System.out.println("ID request: " + value.getIdRequest());
+            System.out.println("Driver: " + value.getDriver().getIdCard());
+            System.out.println("Distance: " + value.getDistance());
+            System.out.println("Type Car: " + value.getTypecar());
+            System.out.println("Server Request: " + value.getNameServer());
+            System.out.println("Time: " + (timeSEnd -timeStart) + " ms");
+        }
     }
 
     private void updateLocation(ManagedChannel channel) throws FileNotFoundException {
@@ -104,17 +131,23 @@ public class Client{
                 latch.countDown();
             }
         });
-        File myObj = new File("Location.txt");
-        Scanner myReader = new Scanner(myObj);
-        while(myReader.hasNextLine()){
-            String value = myReader.nextLine();
-            String[] splited = value.split("\\s+");
-            UpdateLocationRequest request = UpdateLocationRequest.newBuilder().setTypeCar(Integer.parseInt(splited[3]))
-                    .setLongitude(Double.parseDouble(splited[0]))
-                    .setLatitude(Double.parseDouble(splited[1]))
-                    .setIdCard(splited[2]).build();
+        int count = 0;
+        double longitude;
+        double latitude;
+        double timeStart = System.currentTimeMillis();
+        while(count < totalDriver){
+            System.out.println(count);
+            longitude = getRandomLocation(2);
+            latitude = getRandomLocation(1);
+            UpdateLocationRequest request = UpdateLocationRequest.newBuilder().setTypeCar(count%typeCar+1)
+                    .setLongitude(longitude)
+                    .setLatitude(latitude)
+                    .setIdCard(Integer.toString(count)).build();
             requestStreamObserver.onNext(request);
+            count += 1;
         }
+        double timeSEnd = System.currentTimeMillis();
+        System.out.println("Time: " + (timeSEnd -timeStart) + " ms");
         requestStreamObserver.onCompleted();
 
         try {

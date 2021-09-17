@@ -34,30 +34,44 @@ public class CarServiceImpl extends CarServiceGrpc.CarServiceImplBase {
         3: extra car
         */
         if (typeCar==1){
-            getCar("20.195.102.201", request, responseObserver, podName, typeCar);
+            getCar("type1", request, responseObserver, podName, typeCar);
         }
         else if(typeCar==2){
-            getCar("20.195.103.104", request, responseObserver, podName, typeCar);
+            getCar("type2", request, responseObserver, podName, typeCar);
         }
         else  if(typeCar==3){
-            getCar("20.195.98.29", request, responseObserver, podName, typeCar);
+            getCar("type3", request, responseObserver, podName, typeCar);
         }
 
     }
 
-    private void getCar(String host, getNearlyCarRequest request, StreamObserver<getNearlyCarResponse> responseObserver, String podName, int typeCar){
-        try(Jedis jedis = new Jedis(host, 6379)) {
+    private void getCar(String typeC, getNearlyCarRequest request, StreamObserver<getNearlyCarResponse> responseObserver, String podName, int typeCar){
+        try(Jedis jedis = new Jedis("127.0.0.1", 6379)) {
             getNearlyCarRequest value = request;
             double longitude = value.getLongitude();
             double latitude = value.getLatitude();
             int idRequest = value.getIdRequest();
             double timeStart = System.nanoTime();
-            List<GeoRadiusResponse> responses;
-            responses = jedis.georadiusReadonly("LocationDriver", longitude, latitude, 200, GeoUnit.KM, GeoRadiusParam.geoRadiusParam().sortAscending().count(5).withCoord());
-            if(responses.isEmpty()){
-                responses = jedis.georadiusReadonly("backup1", longitude, latitude, 200, GeoUnit.KM, GeoRadiusParam.geoRadiusParam().sortAscending().count(5).withCoord());
+            List<GeoRadiusResponse> responses = jedis.georadiusReadonly(typeC, longitude, latitude, 1, GeoUnit.KM, GeoRadiusParam.geoRadiusParam().sortAscending().count(5).withCoord());;
+            int distance = 2;
+            int total = responses.size();
+            while(distance < 7 && total < 5){
+                responses = jedis.georadiusReadonly(typeC, longitude, latitude, distance, GeoUnit.KM, GeoRadiusParam.geoRadiusParam().sortAscending().count(5).withCoord());
+                total = responses.size();
+                distance+=1;
             }
             getNearlyCarResponse.Builder listDirver = getNearlyCarResponse.newBuilder();
+            if(responses.size()==0){
+                Driver driver = Driver.newBuilder()
+                        .setIdCard("")
+                        .setLongitude(0)
+                        .setLatitude(0)
+                        .build();
+                getNearlyCarResponse response = listDirver.setDriver(driver).setDistance(0).setTypecar(typeCar).setIdRequest(Integer.toString(idRequest)).setTime(0).setNameServer(podName).build();
+                responseObserver.onNext(response);
+                responseObserver.onCompleted();
+            }
+
             String des = longitude+ "," + latitude;
             String table = "";
             int count = 0 ;
@@ -70,7 +84,14 @@ public class CarServiceImpl extends CarServiceGrpc.CarServiceImplBase {
                 }
                 count += 1;
             }
-            String rq = "http://20.197.105.250:5000/table/v1/driving/" + des + ";" + table + "?sources=0&destinations=1;2;3;4;5";
+            while(count < 5){
+                table += "1" + "," + "1" + ";";
+                if(count == 4){
+                    table += "1" + "," + "1";
+                }
+                count += 1;
+            }
+            String rq = "http://52.139.254.49:5000/table/v1/driving/" + des + ";" + table + "?sources=0&destinations=1;2;3;4;5";
             JSONObject json = readJsonFromUrl(rq);
             double minDistance = Double.MAX_VALUE;
             JSONArray arr = json.getJSONArray("destinations");
