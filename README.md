@@ -1,23 +1,23 @@
 # Taxi-Server
-## Tổng quan về hệ thống
+## Overview
 ![alt text](https://github.com/phantruongbovi/Taxi-Server/blob/main/Diagram.png)
-- Để test mình đang lưu trên redis 1 triệu dữ liệu phương tiện, chia đều cho 3 loại xe (1, 2, 3).
+- To perform a test, I am currently storing 1 million vehicle records in Redis, evenly distributed among three types of vehicles (1, 2, 3).
 ## Setup
-1. Clone repo về máy
+1. Clone repo
 ```
 git clone https://github.com/phantruongbovi/Taxi-Server.git
 ```
-2. Mở folder bằng IntelliJ IDEA (Hoặc một công cụ khác tương đương)
-3. Cài đặt môi trường
-- Vào file **build.gradle** chuột phải -> **link with gradle** -> **Gradle** (Thanh bên phải) -> **Task** -> **orther** -> **generateProto**
-- Chọn vào setting IDE -> **Build, Excution, Deployment** -> **Build Tools** -> **Gradle** 
--> Đổi 2 cái trong **Build and run** từ Gradle thành IntelliJIDEA
+2. Open repo
+3. Config environment
+- Access file **build.gradle** right click -> **link with gradle** -> **Gradle** -> **Task** -> **orther** -> **generateProto**
+- Choose setting IDE -> **Build, Excution, Deployment** -> **Build Tools** -> **Gradle** 
+-> Change **Build and run** from Gradle to IntelliJIDEA
 ## Run
-1. Mở src > main > java > taxi > client > Client.java (Đọc và điều chỉnh thông số theo ý muốn) -> RUN file
-2. Địa chỉ ip và port:
+1. Open src > main > java > taxi > client > Client.java -> RUN file
+2. Ip and port:
 - taxi-server: 20.43.157.85:50001
 - osrm-server: 20.197.105.250:5000
-3. Cấu hình VM: 
+3. Config VM: 
 - vCPUs: 2
 - RAM: 4 GiB
 - Data disks: 4
